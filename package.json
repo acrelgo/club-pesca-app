@@ -30,6 +30,8 @@
     "@mui/utils": "7.1.1",
     "@mui/x-date-pickers": "8.5.1",
     "@phosphor-icons/react": "2.1.10",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.89.0",
     "apexcharts": "4.7.0",
     "dayjs": "1.11.13",
     "next": "^15.3.8",
