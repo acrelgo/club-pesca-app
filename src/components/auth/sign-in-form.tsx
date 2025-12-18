@@ -21,15 +21,16 @@ import { z as zod } from 'zod';
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
+import { supabase } from '@/lib/supabase'; // ✅ AÑADIDO
 
 const schema = zod.object({
-  email: zod.string().min(1, { message: 'Email is required' }).email(),
-  password: zod.string().min(1, { message: 'Password is required' }),
+  email: zod.string().min(1, { message: 'Email es requerido' }).email(),
+  password: zod.string().min(1, { message: 'Contraseña es requerida' }),
 });
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'sofia@devias.io', password: 'Secret1' } satisfies Values;
+const defaultValues = { email: '', password: '' } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -51,10 +52,15 @@ export function SignInForm(): React.JSX.Element {
     async (values: Values): Promise<void> => {
       setIsPending(true);
 
-      const { error } = await authClient.signInWithPassword(values);
+      // ✅ REEMPLAZADO: Usar Supabase real en lugar de authClient
+      const { email, password } = values;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
       if (error) {
-        setError('root', { type: 'server', message: error });
+        setError('root', { type: 'server', message: error.message });
         setIsPending(false);
         return;
       }
@@ -72,11 +78,12 @@ export function SignInForm(): React.JSX.Element {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
+        {/* ✅ CAMBIADO: "Sign in" por "Acceso Club de Pesca" */}
+        <Typography variant="h4">Acceso Club de Pesca</Typography>
         <Typography color="text.secondary" variant="body2">
-          Don&apos;t have an account?{' '}
+          ¿No tienes cuenta?{' '}
           <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2">
-            Sign up
+            Regístrate
           </Link>
         </Typography>
       </Stack>
@@ -87,8 +94,9 @@ export function SignInForm(): React.JSX.Element {
             name="email"
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email address" type="email" />
+                {/* ✅ CAMBIADO: "Email address" por "Email del pescador" */}
+                <InputLabel>Email del pescador</InputLabel>
+                <OutlinedInput {...field} label="Email del pescador" type="email" />
                 {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
               </FormControl>
             )}
@@ -98,7 +106,8 @@ export function SignInForm(): React.JSX.Element {
             name="password"
             render={({ field }) => (
               <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
+                {/* ✅ CAMBIADO: "Password" por "Contraseña" */}
+                <InputLabel>Contraseña</InputLabel>
                 <OutlinedInput
                   {...field}
                   endAdornment={
@@ -120,7 +129,7 @@ export function SignInForm(): React.JSX.Element {
                       />
                     )
                   }
-                  label="Password"
+                  label="Contraseña"
                   type={showPassword ? 'text' : 'password'}
                 />
                 {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
@@ -128,25 +137,21 @@ export function SignInForm(): React.JSX.Element {
             )}
           />
           <div>
+            {/* ✅ CAMBIADO: "Forgot password?" por "¿Olvidaste tu contraseña?" */}
             <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
-              Forgot password?
+              ¿Olvidaste tu contraseña?
             </Link>
           </div>
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
           <Button disabled={isPending} type="submit" variant="contained">
-            Sign in
+            {/* ✅ CAMBIADO: "Sign in" por "Entrar al Club" */}
+            {isPending ? 'Accediendo...' : 'Entrar al Club'}
           </Button>
         </Stack>
       </form>
-      <Alert color="warning">
-        Use{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          sofia@devias.io
-        </Typography>{' '}
-        with password{' '}
-        <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
-          Secret1
-        </Typography>
+      {/* ✅ REEMPLAZADO: Eliminado el alert con credenciales de demo */}
+      <Alert color="info">
+        Introduce tu email y contraseña registrados en el club.
       </Alert>
     </Stack>
   );
